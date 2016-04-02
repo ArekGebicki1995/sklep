@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_ag" default="compile.module.ag">
+  <dirname property="module.ag.basedir" file="${ant.file.module_ag}"/>
+  
+  <property name="module.jdk.home.ag" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.ag" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.ag" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.ag" value="-encoding windows-1250 -source 8 ${compiler.args}"/>
+  
+  <property name="ag.output.dir" value="${module.ag.basedir}/out/production/Ag"/>
+  <property name="ag.testoutput.dir" value="${module.ag.basedir}/out/test/Ag"/>
+  
+  <path id="ag.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="ag.module.production.classpath">
+    <path refid="${module.jdk.classpath.ag}"/>
+  </path>
+  
+  <path id="ag.runtime.production.module.classpath">
+    <pathelement location="${ag.output.dir}"/>
+  </path>
+  
+  <path id="ag.module.classpath">
+    <path refid="${module.jdk.classpath.ag}"/>
+    <pathelement location="${ag.output.dir}"/>
+  </path>
+  
+  <path id="ag.runtime.module.classpath">
+    <pathelement location="${ag.testoutput.dir}"/>
+    <pathelement location="${ag.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.ag">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.ag">
+    <patternset refid="excluded.from.module.ag"/>
+  </patternset>
+  
+  <path id="ag.module.sourcepath">
+    <dirset dir="${module.ag.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.ag" depends="compile.module.ag.production,compile.module.ag.tests" description="Compile module Ag"/>
+  
+  <target name="compile.module.ag.production" depends="register.custom.compilers" description="Compile module Ag; production classes">
+    <mkdir dir="${ag.output.dir}"/>
+    <javac2 destdir="${ag.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.ag}/javac">
+      <compilerarg line="${compiler.args.ag}"/>
+      <bootclasspath refid="ag.module.bootclasspath"/>
+      <classpath refid="ag.module.production.classpath"/>
+      <src refid="ag.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.ag"/>
+    </javac2>
+    
+    <copy todir="${ag.output.dir}">
+      <fileset dir="${module.ag.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.ag.tests" depends="register.custom.compilers,compile.module.ag.production" description="compile module Ag; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.ag" description="cleanup module">
+    <delete dir="${ag.output.dir}"/>
+    <delete dir="${ag.testoutput.dir}"/>
+  </target>
+</project>
